@@ -53,43 +53,79 @@ function extractContentText(fromBlock: HTMLElement): string {
   return el?.textContent?.trim() ?? ""
 }
 
-// ===== Mount React vào từng .support-bod-bottom =====
-function mountIntoAllSupportBlocks() {
-  const blocks = document.querySelectorAll<HTMLElement>(".support-bod-bottom")
-  blocks.forEach((block, idx) => {
-    // Bỏ qua block đầu tiên
-    if (idx === 0) return
-
-    // Tránh chèn trùng
-    if (block.querySelector(":scope > .drjoy-support-host")) return
-
-    // Tạo host + shadow root
-    const host = document.createElement("div")
-    host.className = "drjoy-support-host"
-    const shadow = host.attachShadow({ mode: "open" })
-
-    const style = document.createElement("style")
-    style.textContent = `:host{display:block}`
-
-    const mountPoint = document.createElement("div")
-    shadow.append(style, mountPoint)
-    block.appendChild(host)
-
-    const getContent = () => extractContentText(block)
-
-    const root = createRoot(mountPoint)
-    root.render(
-      <StrictMode>
-        <SupportButton getContent={getContent} />
-      </StrictMode>
-    )
-  })
+const btnStyle: React.CSSProperties = {
+  padding: "8px 14px",
+  margin: "8px 0",
+  borderRadius: 8,
+  border: "none",
+  background: "#10b981",
+  color: "#fff",
+  fontWeight: 600,
+  cursor: "pointer"
 }
 
-// ===== Mount ban đầu + theo dõi DOM mới =====
-mountIntoAllSupportBlocks()
+function SupportActionButton({ getContent }: { getContent: () => string }) {
+  return (
+    <button
+      style={btnStyle}
+      onClick={() => {
+        const txt = getContent().trim()
+        alert(txt || "(Không có nội dung)")
+      }}
+    >
+      ⚡ Support Action
+    </button>
+  )
+}
 
-const observer = new MutationObserver(() => {
-  mountIntoAllSupportBlocks()
-})
-observer.observe(document.body, { childList: true, subtree: true })
+function mountIntoBlock(block: HTMLElement, index: number) {
+  // Không render ở block đầu tiên
+  if (index === 0) return
+
+  // Tránh mount trùng
+  if (block.querySelector(":scope > .drjoy-support-host, .drjoy-support-host")) return
+
+  // Tìm vị trí chèn hợp lý: ngay sau phần nội dung
+  const contentArea =
+    block.querySelector<HTMLElement>(".support-txt") ||
+    block.querySelector<HTMLElement>(".support-content-txt") ||
+    block
+
+  const host = document.createElement("div")
+  host.className = "drjoy-support-host"
+  contentArea.appendChild(host)
+
+  const getContent = () => {
+    const el = block.querySelector<HTMLElement>(".content-quill-editor")
+    // Ưu tiên textContent để loại bỏ HTML formatting
+    return el?.textContent ?? ""
+  }
+
+  const root = createRoot(host)
+  root.render(<SupportActionButton getContent={getContent} />)
+}
+
+function scanAndMountAll() {
+  const blocks = document.querySelectorAll<HTMLElement>(".support-bod-bottom")
+  blocks.forEach((b, idx) => mountIntoBlock(b, idx))
+}
+
+(function main() {
+  // Mount lần đầu
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", scanAndMountAll)
+  } else {
+    scanAndMountAll()
+  }
+
+  // Theo dõi DOM để mount các block mới (vì trang có infinite scroll / dynamic render)
+  let scheduled = 0
+  const observer = new MutationObserver(() => {
+    if (scheduled) return
+    scheduled = window.setTimeout(() => {
+      scheduled = 0
+      scanAndMountAll()
+    }, 150)
+  })
+  observer.observe(document.body, { childList: true, subtree: true })
+})()
