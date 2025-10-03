@@ -1,24 +1,43 @@
-import React, { useState } from "react"
+/**
+ * @file This file defines the options page for the Dr.JOY All-in-One extension.
+ * It allows users to configure API keys and other settings, which are stored securely
+ * using Chrome's sync storage area.
+ */
+import React, { useState } from "react";
 
-import { Storage } from "@plasmohq/storage"
-import { useStorage } from "@plasmohq/storage/hook"
+import { Storage } from "@plasmohq/storage";
+import { useStorage } from "@plasmohq/storage/hook";
 
-// Use Chrome sync so settings follow the signed-in user across browsers.
-const sync = new Storage({ area: "sync" })
+/**
+ * @constant {Storage} sync
+ * An instance of the Plasmo Storage class configured to use the 'sync' area.
+ * This ensures that settings are synchronized across all devices where the user is logged in.
+ */
+const sync = new Storage({ area: "sync" });
 
-// A tiny helper to toggle secret visibility
+/**
+ * A reusable input component for sensitive data.
+ * It features a local state to toggle the visibility of the input's content between text and password.
+ * @param {object} props - The component props.
+ * @param {string} props.label - The text label for the input field.
+ * @param {string} props.value - The current value of the input.
+ * @param {(v: string) => void} props.setValue - The function to call when the input value changes.
+ * @param {string} [props.placeholder] - The placeholder text for the input field.
+ * @returns {JSX.Element} The rendered secret input component.
+ */
 function SecretInput({
   label,
   value,
   setValue,
   placeholder
 }: {
-  label: string
-  value: string
-  setValue: (v: string) => void
-  placeholder?: string
+  label: string;
+  value: string;
+  setValue: (v: string) => void;
+  placeholder?: string;
 }) {
-  const [show, setShow] = useState(false)
+  /** Local state to manage the visibility of the password. */
+  const [show, setShow] = useState(false);
   return (
     <div style={{ marginBottom: 16 }}>
       <label style={{ display: "block", fontWeight: 600, marginBottom: 6 }}>
@@ -53,44 +72,55 @@ function SecretInput({
         </button>
       </div>
     </div>
-  )
+  );
 }
 
+/**
+ * The main component for the extension's options page.
+ * It provides a UI for managing various settings, such as API keys and environment configs.
+ * Settings are persisted across browsers using `chrome.storage.sync`.
+ * @returns {JSX.Element} The rendered options page.
+ */
 export default function Options() {
-  // Keys: customize names as needed
+  // State for various API keys and settings, synced with chrome.storage.sync
   const [redmineApiKey, setRedmineApiKey] = useStorage<string>(
     { key: "redmine.apiKey", instance: sync },
     ""
-  )
+  );
   const [drjoyBearer, setDrjoyBearer] = useStorage<string>(
     { key: "drjoy.bearerToken", instance: sync },
     ""
-  )
+  );
   const [drjoyEnv, setDrjoyEnv] = useStorage<string>(
     { key: "drjoy.env", instance: sync },
     "prod"
-  )
+  );
   const [googleClientId, setGoogleClientId] = useStorage<string>(
     { key: "google.clientId", instance: sync },
     ""
-  )
+  );
   const [googleClientSecret, setGoogleClientSecret] = useStorage<string>(
     {
       key: "google.clientSecret",
       instance: sync
     },
     ""
-  )
+  );
   const [googleRefreshToken, setGoogleRefreshToken] = useStorage<string>(
     {
       key: "google.refreshToken",
       instance: sync
     },
     ""
-  )
+  );
 
-  const [status, setStatus] = useState<string>("")
+  /** State for displaying status messages to the user (e.g., "Settings saved"). */
+  const [status, setStatus] = useState<string>("");
 
+  /**
+   * Clears all settings from sync storage.
+   * This function removes all keys managed by this options page, effectively resetting the configuration.
+   */
   const handleClear = async () => {
     await Promise.all([
       sync.remove("redmine.apiKey"),
@@ -99,13 +129,16 @@ export default function Options() {
       sync.remove("google.clientId"),
       sync.remove("google.clientSecret"),
       sync.remove("google.refreshToken")
-    ])
-    setStatus("Cleared all saved values")
-  }
+    ]);
+    setStatus("Cleared all saved values");
+  };
 
+  /**
+   * Exports the current settings to the clipboard as a masked JSON string.
+   * This is useful for debugging purposes without exposing sensitive credentials in full.
+   */
   const handleExport = async () => {
-    // Export as a masked JSON for debug (client secret / tokens partially masked)
-    const mask = (s: string) => (s ? `${s.slice(0, 4)}***${s.slice(-3)}` : "")
+    const mask = (s: string) => (s ? `${s.slice(0, 4)}***${s.slice(-3)}` : "");
     const payload = {
       redmineApiKey: mask(redmineApiKey || ""),
       drjoyBearer: mask(drjoyBearer || ""),
@@ -113,10 +146,10 @@ export default function Options() {
       googleClientId: mask(googleClientId || ""),
       googleClientSecret: mask(googleClientSecret || ""),
       googleRefreshToken: mask(googleRefreshToken || "")
-    }
-    navigator.clipboard.writeText(JSON.stringify(payload, null, 2))
-    setStatus("Copied masked settings to clipboard")
-  }
+    };
+    navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
+    setStatus("Copied masked settings to clipboard");
+  };
 
   return (
     <div
@@ -289,5 +322,5 @@ export default function Options() {
         </ul>
       </details>
     </div>
-  )
+  );
 }

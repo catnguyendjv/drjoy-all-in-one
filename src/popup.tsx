@@ -1,6 +1,15 @@
 import { useState } from "react"
 
+/**
+ * The main popup component for the extension.
+ * This component features a basic UI with a text input field.
+ * @returns {JSX.Element} The rendered popup component.
+ */
 function IndexPopup() {
+  /**
+   * State for the input field's value.
+   * `useState` is a React Hook that lets you add a state variable to your component.
+   */
   const [data, setData] = useState("")
 
   return (
