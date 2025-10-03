@@ -1,33 +1,59 @@
-This is a [Plasmo extension](https://docs.plasmo.com/) project bootstrapped with [`plasmo init`](https://www.npmjs.com/package/plasmo).
+# Dr.JOY All-in-One Extension
 
-## Getting Started
+This is a browser extension built with [Plasmo](https://docs.plasmo.com/) designed to enhance the user experience on the Dr.JOY web application.
 
-First, run the development server:
+## 🚀 Purpose
 
-```bash
-pnpm dev
-# or
-npm run dev
-```
+The primary goal of this extension is to inject helpful tools and actions directly into the Dr.JOY interface, streamlining workflows and providing quick access to common functionalities.
 
-Open your browser and load the appropriate development build. For example, if you are developing for the chrome browser, using manifest v3, use: `build/chrome-mv3-dev`.
+## ✨ Features
 
-You can start editing the popup by modifying `popup.tsx`. It should auto-update as you make changes. To add an options page, simply add a `options.tsx` file to the root of the project, with a react component default exported. Likewise to add a content page, add a `content.ts` file to the root of the project, importing some module and do some logic, then reload the extension on your browser.
+Currently, the extension provides the following features:
 
-For further guidance, [visit our Documentation](https://docs.plasmo.com/)
+-   **Support Action Button**: A "⚡ Support Action" button is added to comment threads to quickly extract and process comment content.
+-   **Timeline Toolbox**: A "🧰 Dr.JOY" button is added to each timeline post for accessing post-specific actions.
 
-## Making production build
+## 🔧 Getting Started (for Developers)
 
-Run the following:
+To get started with developing this extension, follow these steps:
+
+1.  **Get the code:**
+    Obtain the source code for the extension, for example by cloning the repository.
+    ```bash
+    cd drjoy-all-in-one
+    ```
+
+2.  **Install dependencies:**
+    Using `pnpm` is recommended.
+    ```bash
+    pnpm install
+    # or
+    npm install
+    ```
+
+3.  **Run the development server:**
+    ```bash
+    pnpm dev
+    ```
+
+4.  **Load the extension in your browser:**
+    -   Open your browser's extension management page (e.g., `chrome://extensions`).
+    -   Enable "Developer mode".
+    -   Click "Load unpacked".
+    -   Select the `build/chrome-mv3-dev` directory (or the appropriate build for your browser).
+
+The extension will automatically reload as you make changes to the source code. The popup can be edited by modifying `popup.tsx`, and content scripts are located in the `src/contents` directory.
+
+## 📦 Building for Production
+
+To create a production-ready build of the extension, run the following command:
 
 ```bash
 pnpm build
-# or
-npm run build
 ```
 
-This should create a production bundle for your extension, ready to be zipped and published to the stores.
+This will generate a production bundle in the `build` directory, which can be zipped and published to the respective browser web stores.
 
-## Submit to the webstores
+## ⬆️ Submitting to Webstores
 
-The easiest way to deploy your Plasmo extension is to use the built-in [bpp](https://bpp.browser.market) GitHub action. Prior to using this action however, make sure to build your extension and upload the first version to the store to establish the basic credentials. Then, simply follow [this setup instruction](https://docs.plasmo.com/framework/workflows/submit) and you should be on your way for automated submission!
+The easiest way to deploy your Plasmo extension is to use the built-in [bpp](https://bpp.browser.market) GitHub action. Before using this action, make sure to build your extension and upload the first version to the store to establish the basic credentials. Then, follow [this setup instruction](https://docs.plasmo.com/framework/workflows/submit) for automated submissions.
